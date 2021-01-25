@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { LookerEmbedSDK } from '@looker/embed-sdk'
 import {  ExtensionContext2, ExtensionContextData2 } from '@looker/extension-sdk-react'
-import { useParams } from 'react-router-dom'
 import {  Flex, FlexItem } from '@looker/components';
 import styled from 'styled-components'
 import { Looker40SDK } from '@looker/sdk/lib/4.0/methods';
@@ -32,7 +31,7 @@ export function LookMain({id}: any) {
       p="large"
     >
       <FlexItem height="50%">
-        <LookEmbed setQuery={setQuery} query_id={ (query)?query.id:0 }/>
+        <LookEmbed setQuery={setQuery} query_id={ (query)?query.id:0 } look_id={id}/>
       </FlexItem>
       <FlexItem height="50%">
         {query && <LookTable query={query}/>}
@@ -41,9 +40,8 @@ export function LookMain({id}: any) {
   );
 }
 
-function LookEmbed( { query_id, setQuery }: any) {
+function LookEmbed( { query_id, setQuery, look_id }: any) {
   const [look, setLook] = useState<any>()
-  const { content_id } = useParams<any>();
   const extensionContext = useContext<ExtensionContextData2<Looker40SDK>>(
     ExtensionContext2
   )
@@ -65,10 +63,10 @@ function LookEmbed( { query_id, setQuery }: any) {
 
   const embedCtrRef = useCallback(el => {
     const hostUrl = extensionContext?.extensionSDK?.lookerHostData?.hostUrl
-    if (el && hostUrl && content_id) {    
+    if (el && hostUrl && look_id) {    
       el.innerHTML = ''
       LookerEmbedSDK.init(hostUrl)
-      LookerEmbedSDK.createLookWithId(content_id)
+      LookerEmbedSDK.createLookWithId(look_id)
         .appendTo(el)
         .on('page:changed', handlePageChange)
         .build()
@@ -78,7 +76,7 @@ function LookEmbed( { query_id, setQuery }: any) {
           console.error('Connection error', error)
         })
     }
-  }, [content_id])
+  }, [look_id])
 
   return (
     <EmbedContainer
